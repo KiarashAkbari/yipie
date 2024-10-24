@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بازی سوالات</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #2c2c2c, #4d4d4d); /* تیره کردن پس‌زمینه */
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #e0e0e0; /* متن خاکستری روشن */
+        }
+        .container {
+            background-color: #1c1c1c; /* پس‌زمینه تیره جعبه */
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            color: #e0e0e0; /* تیره کردن عنوان */
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        #question {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #cccccc; /* متن سوال خاکستری */
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #555555; /* حاشیه خاکستری تیره */
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #e0e0e0; /* متن ورودی تیره */
+            background-color: #333333; /* پس‌زمینه ورودی تیره */
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            border-color: #777777; /* تغییر رنگ حاشیه ورودی هنگام فوکوس */
+        }
+        button {
+            background-color: #555555; /* دکمه تیره */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #777777; /* تغییر رنگ دکمه هنگام هاور */
+        }
+        button:disabled {
+            background-color: #333333; /* دکمه غیرفعال تیره‌تر */
+            cursor: not-allowed;
+        }
+        #answer.hidden, button.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>به سوالات زیر پاسخ بده</h1>
+        <div id="question">در حال بارگذاری...</div>
+        <input type="text" id="answer" placeholder="جوابت رو اینجا بنویس">
+        <button onclick="nextQuestion()">بعدی</button>
+    </div>
+
+    <script>
+        const questions = [
+            "اسمت چیه؟",
+            "دروغ که نمیگی؟",
+            "کجا دوست داری بری؟",
+            "مطمئنی؟"
+        ];
+
+        let currentQuestion = 0;
+        const answers = {};
+
+        function nextQuestion() {
+            const answer = document.getElementById("answer").value;
+
+            if (answer.trim() === "" && currentQuestion !== 1) return;
+
+            // ذخیره جواب‌ها
+            if (currentQuestion === 0) {
+                answers.name = answer;
+                // بررسی نام‌های خاص
+                if (answer === "فرشته" || answer.toLowerCase() === "freshte") {
+                    alert("اسم قشنگی داری.");
+                }
+            }
+            if (currentQuestion === 1) answers.lie = answer;
+            if (currentQuestion === 2) answers.place = answer;
+
+            if (currentQuestion === 3) {
+                answers.sure = answer;
+                if (answer.toLowerCase() === "نه" || answer.toLowerCase() === "na") {
+                    document.getElementById("question").innerText = "حالا اشکال نداره که مطمئن نیستی.";
+                    setTimeout(() => {
+                        currentQuestion++; 
+                        document.getElementById("question").innerText = questions[currentQuestion];
+                        document.getElementById("answer").value = "";
+                    }, 2000);
+                    return;
+                }
+            }
+
+            document.getElementById("answer").value = ""; // پاک کردن جواب
+            currentQuestion++; 
+
+            // نمایش سوال بعدی یا پایان سوالات
+            if (currentQuestion < questions.length) {
+                document.getElementById("question").innerText = questions[currentQuestion];
+            } else {
+                sendAnswers(); // ارسال جواب‌ها
+            }
+        }
+
+        function sendAnswers() {
+            const url = 'https://script.google.com/macros/s/AKfycbwXcOZSH5VqiDbf1QYKf-H3fRS8laQgjlSL9kKGhDMNiFGXmOAb4HStQw9Lrksmbvev/exec'; // لینک Web App
+            const params = new URLSearchParams(answers);
+
+            fetch(url, {
+                method: 'POST',
+                body: params
+            }).then(response => response.text())
+              .then(data => {
+                  document.getElementById("question").innerText = "میبینمت فرشته.";
+                  document.getElementById("answer").classList.add("hidden");
+                  document.querySelector("button").classList.add("hidden");
+              });
+        }
+
+        document.getElementById("question").innerText = questions[currentQuestion];
+    </script>
+</body>
+</html>
